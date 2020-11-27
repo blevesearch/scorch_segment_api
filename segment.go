@@ -63,12 +63,8 @@ type PersistedSegment interface {
 type TermDictionary interface {
 	PostingsList(term []byte, except *roaring.Bitmap, prealloc PostingsList) (PostingsList, error)
 
-	Iterator() DictionaryIterator
-	PrefixIterator(prefix string) DictionaryIterator
-	RangeIterator(start, end string) DictionaryIterator
 	AutomatonIterator(a vellum.Automaton,
 		startKeyInclusive, endKeyExclusive []byte) DictionaryIterator
-	OnlyIterator(onlyTerms [][]byte, includeCount bool) DictionaryIterator
 
 	Contains(key []byte) (bool, error)
 }
