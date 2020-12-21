@@ -24,15 +24,15 @@ import (
 
 var ErrClosed = fmt.Errorf("index closed")
 
-// DocumentFieldValueVisitor defines a callback to be visited for each
+// StoredFieldValueVisitor defines a callback to be visited for each
 // stored field value.  The return value determines if the visitor
 // should keep going.  Returning true continues visiting, false stops.
-type DocumentFieldValueVisitor func(field string, typ byte, value []byte, pos []uint64) bool
+type StoredFieldValueVisitor func(field string, typ byte, value []byte, pos []uint64) bool
 
 type Segment interface {
 	Dictionary(field string) (TermDictionary, error)
 
-	VisitDocument(num uint64, visitor DocumentFieldValueVisitor) error
+	VisitStoredFields(num uint64, visitor StoredFieldValueVisitor) error
 
 	DocID(num uint64) ([]byte, error)
 
@@ -128,16 +128,16 @@ type Location interface {
 	Size() int
 }
 
-// DocumentFieldTermVisitable is implemented by various scorch segment
+// DocValueVisitable is implemented by various scorch segment
 // implementations with persistence for the un inverting of the
 // postings or other indexed values.
-type DocumentFieldTermVisitable interface {
-	VisitDocumentFieldTerms(localDocNum uint64, fields []string,
-		visitor index.DocumentFieldTermVisitor, optional DocVisitState) (DocVisitState, error)
+type DocValueVisitable interface {
+	VisitDocValues(localDocNum uint64, fields []string,
+		visitor index.DocValueVisitor, optional DocVisitState) (DocVisitState, error)
 
 	// VisitableDocValueFields implementation should return
 	// the list of fields which are document value persisted and
-	// therefore visitable by the above VisitDocumentFieldTerms method.
+	// therefore visitable by the above VisitDocValues method.
 	VisitableDocValueFields() ([]string, error)
 }
 
