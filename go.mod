@@ -1,4 +1,4 @@
-module github.com/blevesearch/scorch_segment_api
+module github.com/blevesearch/scorch_segment_api/v2
 
 go 1.13
 
