@@ -17,7 +17,6 @@ package segment
 import (
 	"fmt"
 
-	"github.com/RoaringBitmap/roaring"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -37,7 +36,7 @@ type Segment interface {
 
 	Count() uint64
 
-	DocNumbers([]string) (*roaring.Bitmap, error)
+	DocNumbers([]string) (Bitmap, error)
 
 	Fields() []string
 
@@ -60,7 +59,7 @@ type PersistedSegment interface {
 }
 
 type TermDictionary interface {
-	PostingsList(term []byte, except *roaring.Bitmap, prealloc PostingsList) (PostingsList, error)
+	PostingsList(term []byte, except Bitmap, prealloc PostingsList) (PostingsList, error)
 
 	AutomatonIterator(a Automaton,
 		startKeyInclusive, endKeyExclusive []byte) DictionaryIterator
@@ -102,9 +101,9 @@ type PostingsIterator interface {
 }
 
 type OptimizablePostingsIterator interface {
-	ActualBitmap() *roaring.Bitmap
+	ActualBitmap() Bitmap
 	DocNum1Hit() (uint64, bool)
-	ReplaceActual(*roaring.Bitmap)
+	ReplaceActual(Bitmap)
 }
 
 type Posting interface {
