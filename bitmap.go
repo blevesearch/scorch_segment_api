@@ -19,7 +19,7 @@ type Bitmap interface {
 	// these methods manipulate the bitmap
 	Add(uint32)
 	AddMany([]uint32)
-	AddRange(uint64,  uint64)
+	AddRange(uint64, uint64)
 	And(Bitmap)
 	AndNot(Bitmap)
 	Clone() Bitmap
