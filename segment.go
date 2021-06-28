@@ -16,6 +16,7 @@ package segment
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/RoaringBitmap/roaring"
 	index "github.com/blevesearch/bleve_index_api"
@@ -52,6 +53,7 @@ type Segment interface {
 type UnpersistedSegment interface {
 	Segment
 	Persist(path string) error
+	PersistToWriter(io.WriteCloser) error
 }
 
 type PersistedSegment interface {
