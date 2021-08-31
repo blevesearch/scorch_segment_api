@@ -49,6 +49,11 @@ type Segment interface {
 	DecRef() error
 }
 
+type SegmentNumeric interface {
+	Segment
+	InRange(field string, min, max float64, inclusiveMin, inclusiveMax bool, except *roaring.Bitmap) (PostingsList, error)
+}
+
 type UnpersistedSegment interface {
 	Segment
 	Persist(path string) error
