@@ -101,6 +101,11 @@ type PostingsIterator interface {
 	Size() int
 }
 
+type DiskStatsReporter interface {
+	BytesRead() uint64
+	SetBytesRead(uint64)
+}
+
 type OptimizablePostingsIterator interface {
 	ActualBitmap() *roaring.Bitmap
 	DocNum1Hit() (uint64, bool)
