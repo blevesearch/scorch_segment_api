@@ -101,6 +101,10 @@ type PostingsIterator interface {
 	Size() int
 }
 
+// This flag controls the IO stats collection from the segment files
+// during indexing and querying
+var CollectIOStats bool
+
 type DiskStatsReporter interface {
 	BytesRead() uint64
 	SetBytesRead(uint64)
