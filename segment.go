@@ -101,13 +101,17 @@ type PostingsIterator interface {
 	Size() int
 }
 
-// This flag controls the IO stats collection from the segment files
-// during indexing and querying
-var CollectIOStats bool
-
 type DiskStatsReporter interface {
+	// BytesRead returns the bytes read from the disk as
+	// part of the current running query.
 	BytesRead() uint64
-	SetBytesRead(uint64)
+	// ResetBytesRead is used by the parent layer
+	// to reset the bytes read value to a consistent
+	// value during operations such as merging of segments.
+	ResetBytesRead(uint64)
+	// BytesRead returns the bytes written to disk while
+	// building an index
+	BytesWritten() uint64
 }
 
 type OptimizablePostingsIterator interface {
