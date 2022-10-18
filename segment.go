@@ -30,6 +30,7 @@ type StoredFieldValueVisitor func(field string, typ byte, value []byte, pos []ui
 
 type Segment interface {
 	DiskStatsReporter
+
 	Dictionary(field string) (TermDictionary, error)
 
 	VisitStoredFields(num uint64, visitor StoredFieldValueVisitor) error
@@ -90,6 +91,7 @@ type PostingsList interface {
 
 type PostingsIterator interface {
 	DiskStatsReporter
+
 	// The caller is responsible for copying whatever it needs from
 	// the returned Posting instance before calling Next(), as some
 	// implementations may return a shared instance to reduce memory
