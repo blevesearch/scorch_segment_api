@@ -162,6 +162,7 @@ type DocValueVisitable interface {
 }
 
 type DocVisitState interface {
+	DiskStatsReporter
 }
 
 type StatsReporter interface {
