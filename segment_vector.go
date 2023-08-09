@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build densevector
+// +build densevector
+
 package segment
 
 import "github.com/RoaringBitmap/roaring"
