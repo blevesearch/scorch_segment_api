@@ -12,3 +12,5 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 )
+
+replace github.com/blevesearch/bleve_index_api => ../bleve_index_api

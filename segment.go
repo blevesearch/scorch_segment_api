@@ -28,6 +28,11 @@ var ErrClosed = fmt.Errorf("index closed")
 // should keep going.  Returning true continues visiting, false stops.
 type StoredFieldValueVisitor func(field string, typ byte, value []byte, pos []uint64) bool
 
+type SynonymSegment interface {
+	Segment
+	SynonymMetadata(field string) (*index.SynonymMetadata, error)
+}
+
 type Segment interface {
 	DiskStatsReporter
 
