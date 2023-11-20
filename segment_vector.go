@@ -17,7 +17,10 @@
 
 package segment
 
-import "github.com/RoaringBitmap/roaring"
+import (
+	"github.com/RoaringBitmap/roaring"
+	index "github.com/blevesearch/bleve_index_api"
+)
 
 type VecPostingsList interface {
 	DiskStatsReporter
@@ -54,7 +57,9 @@ type VecPostingsIterator interface {
 
 type VectorSegment interface {
 	Segment
-	SimilarVectors(field string, qVector []float32, k int64, except *roaring.Bitmap) (VecPostingsList, error)
+	ReadVectorIndex(field string) (index.VectorIndex, error)
+	SearchSimilarVectors(vecIndex index.VectorIndex, field string, qVector []float32,
+		k int64, except *roaring.Bitmap) (VecPostingsList, error)
 }
 
 type VecPosting interface {
