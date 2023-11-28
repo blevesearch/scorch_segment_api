@@ -19,7 +19,6 @@ package segment
 
 import (
 	"github.com/RoaringBitmap/roaring"
-	index "github.com/blevesearch/bleve_index_api"
 )
 
 type VecPostingsList interface {
@@ -57,8 +56,8 @@ type VecPostingsIterator interface {
 
 type VectorSegment interface {
 	Segment
-	ReadVectorIndex(field string) (index.VectorIndex, error)
-	SearchSimilarVectors(vecIndex index.VectorIndex, field string, qVector []float32,
+	GetVectorIndex(field string) (VectorIndex, error)
+	SearchSimilarVectors(vecIndex VectorIndex, field string, qVector []float32,
 		k int64, except *roaring.Bitmap) (VecPostingsList, error)
 }
 
@@ -68,4 +67,12 @@ type VecPosting interface {
 	Score() float32
 
 	Size() int
+}
+
+type VectorIndex interface {
+	// Searches for the top 'k' similar vectors to the ones in 'x'
+	// Returns the distances and labels(IDs) for the similar vectors.
+	Search(x []float32, k int64) (distances []float32, labels []int64, err error)
+
+	Close()
 }
