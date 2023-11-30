@@ -17,7 +17,9 @@
 
 package segment
 
-import "github.com/RoaringBitmap/roaring"
+import (
+	"github.com/RoaringBitmap/roaring"
+)
 
 type VecPostingsList interface {
 	DiskStatsReporter
@@ -54,7 +56,9 @@ type VecPostingsIterator interface {
 
 type VectorSegment interface {
 	Segment
-	SimilarVectors(field string, qVector []float32, k int64, except *roaring.Bitmap) (VecPostingsList, error)
+	GetVectorIndex(field string) (VectorIndex, error)
+	SearchSimilarVectors(vecIndex VectorIndex, field string, qVector []float32,
+		k int64, except *roaring.Bitmap) (VecPostingsList, error)
 }
 
 type VecPosting interface {
@@ -63,4 +67,12 @@ type VecPosting interface {
 	Score() float32
 
 	Size() int
+}
+
+type VectorIndex interface {
+	// Searches for the top 'k' similar vectors to the ones in 'x'
+	// Returns the distances and labels(IDs) for the similar vectors.
+	Search(x []float32, k int64) (distances []float32, labels []int64, err error)
+
+	Close()
 }
