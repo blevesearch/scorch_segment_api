@@ -54,11 +54,12 @@ type VecPostingsIterator interface {
 	Size() int
 }
 
+type SearchVectorIndex func(field string, qVector []float32, k int64, except *roaring.Bitmap) (VecPostingsList, error)
+type CloseVectorIndex func()
+
 type VectorSegment interface {
 	Segment
-	GetVectorIndex(field string) (VectorIndex, error)
-	SearchSimilarVectors(vecIndex VectorIndex, field string, qVector []float32,
-		k int64, except *roaring.Bitmap) (VecPostingsList, error)
+	InterpretVectorIndex(field string) (SearchVectorIndex, CloseVectorIndex, error)
 }
 
 type VecPosting interface {
@@ -67,12 +68,4 @@ type VecPosting interface {
 	Score() float32
 
 	Size() int
-}
-
-type VectorIndex interface {
-	// Searches for the top 'k' similar vectors to the ones in 'x'
-	// Returns the distances and labels(IDs) for the similar vectors.
-	Search(x []float32, k int64) (distances []float32, labels []int64, err error)
-
-	Close()
 }
