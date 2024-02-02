@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/RoaringBitmap/roaring v1.2.3
-	github.com/blevesearch/bleve_index_api v1.1.5
+	github.com/blevesearch/bleve_index_api v1.1.6
 )
 
 require (
