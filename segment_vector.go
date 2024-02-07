@@ -55,7 +55,7 @@ type VecPostingsIterator interface {
 }
 
 type VectorIndex interface {
-	Search(qVector []float32, k int64, except *roaring.Bitmap) (VecPostingsList, error)
+	Search(qVector []float32, k int64, except *roaring.Bitmap, distanceBuffer []float32, labelBuffer []int64) (VecPostingsList, error)
 	Close()
 	Size() uint64
 }
