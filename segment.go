@@ -168,3 +168,7 @@ type DocVisitState interface {
 type StatsReporter interface {
 	ReportBytesWritten(bytesWritten uint64)
 }
+
+type FieldStatsReporter interface {
+	UpdateFieldStats(map[string]map[string]int)
+}
