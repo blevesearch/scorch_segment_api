@@ -170,5 +170,12 @@ type StatsReporter interface {
 }
 
 type FieldStatsReporter interface {
-	UpdateFieldStats(map[string]map[string]int)
+	UpdateFieldStats(FieldStats)
+}
+
+type FieldStats interface {
+	AddStat(statName, fieldName string, value uint64)
+	AggregateStats(stats FieldStats)
+	AppendStat(statName, fieldName string, value uint64)
+	GetStatsMap() map[string]map[string]uint64
 }
