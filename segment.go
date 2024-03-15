@@ -174,8 +174,13 @@ type FieldStatsReporter interface {
 }
 
 type FieldStats interface {
-	AddStat(statName, fieldName string, value uint64)
-	AggregateStats(stats FieldStats)
-	AppendStat(statName, fieldName string, value uint64)
-	GetStatsMap() map[string]map[string]uint64
+	Store(statName, fieldName string, value uint64)
+	Aggregate(stats FieldStats)
+	Fetch() map[string]map[string]uint64
+}
+
+const NumVecsStat = "num_vectors"
+
+var Stats = map[string]struct{}{
+	NumVecsStat: struct{}{},
 }
