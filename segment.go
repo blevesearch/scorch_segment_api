@@ -178,9 +178,3 @@ type FieldStats interface {
 	Aggregate(stats FieldStats)
 	Fetch() map[string]map[string]uint64
 }
-
-const NumVecsStat = "num_vectors"
-
-var Stats = map[string]struct{}{
-	NumVecsStat: struct{}{},
-}
