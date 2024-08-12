@@ -58,7 +58,9 @@ type VecPostingsIterator interface {
 
 type VectorIndex interface {
 	// @params: Search params for backing vector index (like IVF, HNSW, etc.)
-	Search(qVector []float32, k int64, params json.RawMessage) (VecPostingsList, error)
+	// @requiresFiltering: whether the kNN queries require any filtering.
+	Search(qVector []float32, k int64, requiresFiltering bool,
+		eligibleDocIDs *roaring.Bitmap, params json.RawMessage) (VecPostingsList, error)
 	Close()
 	Size() uint64
 }
