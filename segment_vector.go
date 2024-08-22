@@ -60,7 +60,7 @@ type VectorIndex interface {
 	// @params: Search params for backing vector index (like IVF, HNSW, etc.)
 	Search(qVector []float32, k int64, params json.RawMessage) (VecPostingsList, error)
 	// @eligibleDocIDs: DocIDs in the segment eligible for the kNN query.
-	SearchWithFilter(qVector []float32, k int64, eligibleDocIDs *roaring.Bitmap,
+	SearchWithFilter(qVector []float32, k int64, eligibleDocIDs []uint64,
 		params json.RawMessage) (VecPostingsList, error)
 	Close()
 	Size() uint64
