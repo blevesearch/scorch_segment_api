@@ -68,7 +68,8 @@ type VectorIndex interface {
 
 type VectorSegment interface {
 	Segment
-	InterpretVectorIndex(field string, except *roaring.Bitmap) (VectorIndex, error)
+	InterpretVectorIndex(field string, filtered bool, except *roaring.Bitmap) (
+		VectorIndex, error)
 }
 
 type VecPosting interface {
