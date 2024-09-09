@@ -1,10 +1,10 @@
 module github.com/blevesearch/scorch_segment_api/v2
 
-go 1.20
+go 1.21
 
 require (
 	github.com/RoaringBitmap/roaring v1.9.3
-	github.com/blevesearch/bleve_index_api v1.1.10
+	github.com/blevesearch/bleve_index_api v1.1.12
 )
 
 require (
