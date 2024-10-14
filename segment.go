@@ -61,11 +61,22 @@ type PersistedSegment interface {
 	Path() string
 }
 
+type SynonymSegment interface {
+	Segment
+	Thesaurus(field string) (Thesaurus, error)
+}
+
 type TermDictionary interface {
 	PostingsList(term []byte, except *roaring.Bitmap, prealloc PostingsList) (PostingsList, error)
 
 	AutomatonIterator(a Automaton,
 		startKeyInclusive, endKeyExclusive []byte) DictionaryIterator
+
+	Contains(key []byte) (bool, error)
+}
+
+type Thesaurus interface {
+	SynonymsList(term []byte, except *roaring.Bitmap, prealloc SynonymsList) (SynonymsList, error)
 
 	Contains(key []byte) (bool, error)
 }
@@ -89,6 +100,10 @@ type PostingsList interface {
 	// Or(other PostingsList) PostingsList
 }
 
+type SynonymsList interface {
+	Iterator(prealloc SynonymsIterator) SynonymsIterator
+}
+
 type PostingsIterator interface {
 	DiskStatsReporter
 
@@ -105,6 +120,14 @@ type PostingsIterator interface {
 	Advance(docNum uint64) (Posting, error)
 
 	Size() int
+}
+
+type SynonymsIterator interface {
+	// The caller is responsible for copying whatever it needs from
+	// the returned Posting instance before calling Next(), as some
+	// implementations may return a shared instance to reduce memory
+	// allocations.
+	Next() (Synonym, error)
 }
 
 type DiskStatsReporter interface {
@@ -137,6 +160,12 @@ type Posting interface {
 	Locations() []Location
 
 	Size() int
+}
+
+type Synonym interface {
+	Term() string
+	DocNum() uint32
+	SynonymID() uint32
 }
 
 type Location interface {
