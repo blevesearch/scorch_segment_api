@@ -78,6 +78,8 @@ type TermDictionary interface {
 type Thesaurus interface {
 	SynonymsList(term []byte, except *roaring.Bitmap, prealloc SynonymsList) (SynonymsList, error)
 
+	Size() int
+
 	Contains(key []byte) (bool, error)
 }
 
@@ -102,6 +104,8 @@ type PostingsList interface {
 
 type SynonymsList interface {
 	Iterator(prealloc SynonymsIterator) SynonymsIterator
+
+	Size() int
 }
 
 type PostingsIterator interface {
@@ -128,6 +132,8 @@ type SynonymsIterator interface {
 	// implementations may return a shared instance to reduce memory
 	// allocations.
 	Next() (Synonym, error)
+
+	Size() int
 }
 
 type DiskStatsReporter interface {
