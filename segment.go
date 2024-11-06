@@ -78,8 +78,6 @@ type TermDictionary interface {
 type Thesaurus interface {
 	SynonymsList(term []byte, except *roaring.Bitmap, prealloc SynonymsList) (SynonymsList, error)
 
-	Size() int
-
 	Contains(key []byte) (bool, error)
 }
 
@@ -172,6 +170,7 @@ type Synonym interface {
 	Term() string
 	DocNum() uint32
 	SynonymID() uint32
+	Size() int
 }
 
 type Location interface {
