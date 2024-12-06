@@ -68,6 +68,9 @@ type TermDictionary interface {
 		startKeyInclusive, endKeyExclusive []byte) DictionaryIterator
 
 	Contains(key []byte) (bool, error)
+
+	// makes sense to just modify the existing API rather create a new one
+	Cardinality() int
 }
 
 type DictionaryIterator interface {
