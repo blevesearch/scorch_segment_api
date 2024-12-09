@@ -61,22 +61,11 @@ type PersistedSegment interface {
 	Path() string
 }
 
-type SynonymSegment interface {
-	Segment
-	Thesaurus(field string) (Thesaurus, error)
-}
-
 type TermDictionary interface {
 	PostingsList(term []byte, except *roaring.Bitmap, prealloc PostingsList) (PostingsList, error)
 
 	AutomatonIterator(a Automaton,
 		startKeyInclusive, endKeyExclusive []byte) DictionaryIterator
-
-	Contains(key []byte) (bool, error)
-}
-
-type Thesaurus interface {
-	SynonymsList(term []byte, except *roaring.Bitmap, prealloc SynonymsList) (SynonymsList, error)
 
 	Contains(key []byte) (bool, error)
 }
@@ -100,12 +89,6 @@ type PostingsList interface {
 	// Or(other PostingsList) PostingsList
 }
 
-type SynonymsList interface {
-	Iterator(prealloc SynonymsIterator) SynonymsIterator
-
-	Size() int
-}
-
 type PostingsIterator interface {
 	DiskStatsReporter
 
@@ -120,16 +103,6 @@ type PostingsIterator interface {
 	// Callers MUST NOT attempt to pass a docNum that is less than or
 	// equal to the currently visited posting doc Num.
 	Advance(docNum uint64) (Posting, error)
-
-	Size() int
-}
-
-type SynonymsIterator interface {
-	// The caller is responsible for copying whatever it needs from
-	// the returned Posting instance before calling Next(), as some
-	// implementations may return a shared instance to reduce memory
-	// allocations.
-	Next() (Synonym, error)
 
 	Size() int
 }
@@ -163,13 +136,6 @@ type Posting interface {
 
 	Locations() []Location
 
-	Size() int
-}
-
-type Synonym interface {
-	Term() string
-	DocNum() uint32
-	SynonymID() uint32
 	Size() int
 }
 
@@ -211,4 +177,38 @@ type FieldStats interface {
 	Store(statName, fieldName string, value uint64)
 	Aggregate(stats FieldStats)
 	Fetch() map[string]map[string]uint64
+}
+
+type ThesaurusSegment interface {
+	Segment
+	Thesaurus(field string) (Thesaurus, error)
+}
+
+type Thesaurus interface {
+	SynonymsList(term []byte, except *roaring.Bitmap, prealloc SynonymsList) (SynonymsList, error)
+
+	AutomatonIterator(a Automaton,
+		startKeyInclusive, endKeyExclusive []byte) ThesaurusIterator
+
+	Contains(key []byte) (bool, error)
+}
+
+type ThesaurusIterator interface {
+	Next() (*index.ThesaurusEntry, error)
+}
+
+type SynonymsList interface {
+	Iterator(prealloc SynonymsIterator) SynonymsIterator
+	Size() int
+}
+
+type SynonymsIterator interface {
+	Next() (Synonym, error)
+	Size() int
+}
+
+type Synonym interface {
+	Number() uint32
+	Term() string
+	Size() int
 }
