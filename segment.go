@@ -47,6 +47,7 @@ type Segment interface {
 
 	AddRef()
 	DecRef() error
+	RefCount() int64
 }
 
 type UnpersistedSegment interface {
