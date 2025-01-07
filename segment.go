@@ -68,6 +68,9 @@ type TermDictionary interface {
 		startKeyInclusive, endKeyExclusive []byte) DictionaryIterator
 
 	Contains(key []byte) (bool, error)
+
+	// returns total number of terms in the term dictionary
+	Cardinality() int
 }
 
 type DictionaryIterator interface {
