@@ -69,7 +69,7 @@ type TermDictionary interface {
 
 	Contains(key []byte) (bool, error)
 
-	// makes sense to just modify the existing API rather create a new one
+	// returns total number of terms in the term dictionary
 	Cardinality() int
 }
 
