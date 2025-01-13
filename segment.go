@@ -61,6 +61,11 @@ type PersistedSegment interface {
 	Path() string
 }
 
+type UpdatableSegment interface {
+	Segment
+	UpdatedFields() map[string]index.FieldInfo
+}
+
 type TermDictionary interface {
 	PostingsList(term []byte, except *roaring.Bitmap, prealloc PostingsList) (PostingsList, error)
 
