@@ -3,7 +3,7 @@ module github.com/blevesearch/scorch_segment_api/v2
 go 1.21
 
 require (
-	github.com/RoaringBitmap/roaring/v2 v2.4.4
+	github.com/RoaringBitmap/roaring/v2 v2.4.5
 	github.com/blevesearch/bleve_index_api v1.2.1
 )
 
