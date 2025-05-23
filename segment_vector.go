@@ -19,6 +19,7 @@ package segment
 
 import (
 	"encoding/json"
+	"time"
 
 	index "github.com/blevesearch/bleve_index_api"
 	"github.com/RoaringBitmap/roaring/v2"
@@ -69,16 +70,21 @@ type VectorIndex interface {
 	ObtainKCentroidCardinalitiesFromIVFIndex(limit int, descending bool) ([]index.CentroidCardinality, error)
 }
 
+const DefaultBatchExecutionDelay = time.Duration(100 * time.Millisecond)
+
+type InterpretVectorIndexOptions struct {
+	Batch               bool
+	BatchExecutionDelay time.Duration
+}
+
 type VectorSegment interface {
 	Segment
-	InterpretVectorIndex(field string, requiresFiltering bool, except *roaring.Bitmap) (
-		VectorIndex, error)
+	InterpretVectorIndex(field string, requiresFiltering bool, except *roaring.Bitmap,
+		options InterpretVectorIndexOptions) (VectorIndex, error)
 }
 
 type VecPosting interface {
 	Number() uint64
-
 	Score() float32
-
 	Size() int
 }
