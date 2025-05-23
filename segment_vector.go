@@ -19,6 +19,7 @@ package segment
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/RoaringBitmap/roaring/v2"
 )
@@ -66,16 +67,21 @@ type VectorIndex interface {
 	Size() uint64
 }
 
+const DefaultBatchExecutionDelay = time.Duration(100 * time.Millisecond)
+
+type InterpretVectorIndexOptions struct {
+	Batch               bool
+	BatchExecutionDelay time.Duration
+}
+
 type VectorSegment interface {
 	Segment
-	InterpretVectorIndex(field string, requiresFiltering bool, except *roaring.Bitmap) (
-		VectorIndex, error)
+	InterpretVectorIndex(field string, requiresFiltering bool, except *roaring.Bitmap,
+		options InterpretVectorIndexOptions) (VectorIndex, error)
 }
 
 type VecPosting interface {
 	Number() uint64
-
 	Score() float32
-
 	Size() int
 }
