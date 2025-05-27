@@ -80,7 +80,7 @@ type InterpretVectorIndexOptions struct {
 type VectorSegment interface {
 	Segment
 	InterpretVectorIndex(field string, requiresFiltering bool, except *roaring.Bitmap,
-		options InterpretVectorIndexOptions) (VectorIndex, error)
+		options *InterpretVectorIndexOptions) (VectorIndex, error)
 }
 
 type VecPosting interface {
