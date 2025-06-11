@@ -243,3 +243,9 @@ type Synonym interface {
 
 	Size() int
 }
+
+type NestedSegment interface {
+	Segment
+
+	NestedDictionary(field string, path string, arrayPosition int) (TermDictionary, error)
+}
