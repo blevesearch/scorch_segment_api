@@ -247,5 +247,5 @@ type Synonym interface {
 type NestedSegment interface {
 	Segment
 
-	NestedDictionary(field string, path string, arrayPosition int) (TermDictionary, error)
+	NestedDictionary(nestedState index.NestedState, field string) (TermDictionary, error)
 }
