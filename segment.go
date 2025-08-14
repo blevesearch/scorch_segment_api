@@ -63,7 +63,7 @@ type PersistedSegment interface {
 
 type UpdatableSegment interface {
 	Segment
-	GetUpdatedFields() map[string]*index.UpdateFieldInfo
+	SetUpdatedFields() map[string]*index.UpdateFieldInfo
 	PutUpdatedFields(fieldInfo map[string]*index.UpdateFieldInfo)
 }
 
