@@ -247,5 +247,5 @@ type Synonym interface {
 type NestedSegment interface {
 	Segment
 
-	NestedDictionary(nestedState index.NestedState, field string) (TermDictionary, error)
+	Ancestors(docID uint64) []uint64
 }
