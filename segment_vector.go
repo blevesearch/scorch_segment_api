@@ -66,7 +66,7 @@ type VectorIndex interface {
 	Close()
 	Size() uint64
 
-	ObtainTopKCentroidCardinalitiesFromIVFIndex(limit int) ([]index.CentroidCardinality, error)
+	ObtainKCentroidCardinalitiesFromIVFIndex(limit int, descending bool) ([]index.CentroidCardinality, error)
 }
 
 type VectorSegment interface {
