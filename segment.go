@@ -244,8 +244,17 @@ type Synonym interface {
 	Size() int
 }
 
+// NestedSegment is an optional interface that a Segment may implement
+// to provide access to nested document relationships within that segment.
 type NestedSegment interface {
 	Segment
-
+	// Ancestors returns a slice of ancestor document IDs for the given document ID.
+	// If the document has no ancestors or if the segment does not support nested documents,
+	// an empty slice is returned.
 	Ancestors(docID uint64) []uint64
+
+	// Descendants returns a slice of descendant document IDs for the given document ID.
+	// If the document has no descendants or if the segment does not support nested documents,
+	// an empty slice is returned.
+	Descendants(docID uint64) []uint64
 }
