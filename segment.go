@@ -257,4 +257,10 @@ type NestedSegment interface {
 	// If the document has no descendants or if the segment does not support nested documents,
 	// an empty slice is returned.
 	Descendants(docID uint64) []uint64
+
+	// CountRoot returns the number of root documents in the segment, excluding any documents
+	// that are marked as deleted in the provided bitmap. If the segment does not support nested
+	// documents, it returns the total document count minus the count of deleted documents.
+	// A root document is defined as a document that is not a child of any other document.
+	CountRoot(deleted *roaring.Bitmap) uint64
 }
