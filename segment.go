@@ -263,4 +263,9 @@ type NestedSegment interface {
 	// documents, it returns the total document count minus the count of deleted documents.
 	// A root document is defined as a document that is not a child of any other document.
 	CountRoot(deleted *roaring.Bitmap) uint64
+
+	// AddNestedDocuments updates the provided bitmap to include all nested documents
+	// associated with documents marked as deleted in the bitmap. This ensures that when
+	// a parent document is deleted, all its nested child documents are also considered deleted.
+	AddNestedDocuments(deleted *roaring.Bitmap) *roaring.Bitmap
 }
