@@ -253,11 +253,6 @@ type NestedSegment interface {
 	// an empty slice is returned.
 	Ancestors(docID uint64) []uint64
 
-	// Descendants returns a slice of descendant document IDs for the given document ID.
-	// If the document has no descendants or if the segment does not support nested documents,
-	// an empty slice is returned.
-	Descendants(docID uint64) []uint64
-
 	// CountRoot returns the number of root documents in the segment, excluding any documents
 	// that are marked as deleted in the provided bitmap. If the segment does not support nested
 	// documents, it returns the total document count minus the count of deleted documents.
