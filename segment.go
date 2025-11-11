@@ -248,8 +248,6 @@ type Synonym interface {
 // to provide access to nested document relationships within that segment.
 type NestedSegment interface {
 	Segment
-	// HasNestedDocs checks if the segment has any documents with ancestry (i.e., nested documents).
-	HasNestedDocs() bool
 	// Ancestors returns a slice of ancestor document IDs for the given document ID.
 	// If the document has no ancestors or if the segment does not support nested documents,
 	// an empty slice is returned.
