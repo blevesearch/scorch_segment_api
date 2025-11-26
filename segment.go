@@ -248,10 +248,10 @@ type Synonym interface {
 // to provide access to nested document relationships within that segment.
 type NestedSegment interface {
 	Segment
-	// Ancestors returns a slice of ancestor document IDs for the given document ID.
+	// Ancestors returns a slice of ancestor IDs for the given document ID.
 	// If the document has no ancestors or if the segment does not support nested documents,
-	// an empty slice is returned.
-	Ancestors(docID uint64) []uint64
+	// a slice containing only the document ID itself is returned.
+	Ancestors(docID uint64) []index.AncestorID
 
 	// CountRoot returns the number of root documents in the segment, excluding any documents
 	// that are marked as deleted in the provided bitmap. If the segment does not support nested
