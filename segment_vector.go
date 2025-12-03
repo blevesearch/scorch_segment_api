@@ -22,6 +22,7 @@ import (
 
 	"github.com/RoaringBitmap/roaring/v2"
 	index "github.com/blevesearch/bleve_index_api"
+	"github.com/blevesearch/go-faiss"
 )
 
 type VecPostingsList interface {
@@ -74,6 +75,12 @@ type VectorIndex interface {
 	Size() uint64
 
 	ObtainKCentroidCardinalitiesFromIVFIndex(limit int, descending bool) ([]index.CentroidCardinality, error)
+}
+
+// refactor this?
+type CentroidIndexSegment interface {
+	Segment
+	GetCoarseQuantizer(field string) (*faiss.IndexImpl, error)
 }
 
 type VectorSegment interface {
