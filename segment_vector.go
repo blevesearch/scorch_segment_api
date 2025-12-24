@@ -20,8 +20,8 @@ package segment
 import (
 	"encoding/json"
 
-	index "github.com/blevesearch/bleve_index_api"
 	"github.com/RoaringBitmap/roaring/v2"
+	index "github.com/blevesearch/bleve_index_api"
 )
 
 type VecPostingsList interface {
@@ -71,8 +71,7 @@ type VectorIndex interface {
 
 type VectorSegment interface {
 	Segment
-	InterpretVectorIndex(field string, requiresFiltering bool, except *roaring.Bitmap) (
-		VectorIndex, error)
+	InterpretVectorIndex(field string, except *roaring.Bitmap) (VectorIndex, error)
 }
 
 type VecPosting interface {
