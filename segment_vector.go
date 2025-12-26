@@ -58,11 +58,18 @@ type VecPostingsIterator interface {
 }
 
 type VectorIndex interface {
-	// @params: Search params for backing vector index (like IVF, HNSW, etc.)
+	// Search performs a kNN search for the given query vector and returns a postings list.
+	// - qVector: the query vector
+	// - k: the number of similar vectors to return
+	// - params: additional search parameters
 	Search(qVector []float32, k int64, params json.RawMessage) (VecPostingsList, error)
-	// @eligibleDocIDs: DocIDs in the segment eligible for the kNN query.
-	SearchWithFilter(qVector []float32, k int64, eligibleDocIDs []uint64,
-		params json.RawMessage) (VecPostingsList, error)
+	// SearchWithFilter performs a kNN search for the given query vector, filtering results based on eligible document IDs.
+	// - qVector: the query vector
+	// - k: the number of similar vectors to return
+	// - eligibleList: list of eligible document IDs to consider
+	// - params: additional search parameters
+	SearchWithFilter(qVector []float32, k int64, eligibleList index.EligibleDocumentList, params json.RawMessage) (VecPostingsList, error)
+	// Close releases any resources held by the VectorIndex.
 	Close()
 	Size() uint64
 
