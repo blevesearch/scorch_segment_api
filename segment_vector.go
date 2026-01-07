@@ -63,10 +63,10 @@ type VectorIndex interface {
 	// - k: the number of similar vectors to return
 	// - params: additional search parameters
 	Search(qVector []float32, k int64, params json.RawMessage) (VecPostingsList, error)
-	// SearchWithFilter performs a kNN search for the given query vector, filtering results based on eligible document IDs.
+	// SearchWithFilter performs a kNN search for the given query vector, filtering results based on eligible documents
 	// - qVector: the query vector
 	// - k: the number of similar vectors to return
-	// - eligibleList: list of eligible document IDs to consider
+	// - eligibleList: list of eligible documents to consider
 	// - params: additional search parameters
 	SearchWithFilter(qVector []float32, k int64, eligibleList index.EligibleDocumentList, params json.RawMessage) (VecPostingsList, error)
 	// Close releases any resources held by the VectorIndex.
