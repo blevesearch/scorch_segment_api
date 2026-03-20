@@ -77,8 +77,7 @@ type VectorIndex interface {
 	ObtainKCentroidCardinalitiesFromIVFIndex(limit int, descending bool) ([]index.CentroidCardinality, error)
 }
 
-// refactor this?
-type CentroidIndexSegment interface {
+type TrainedSegment interface {
 	Segment
 	GetCoarseQuantizer(field string) (*faiss.IndexImpl, error)
 }
