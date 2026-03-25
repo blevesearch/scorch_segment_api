@@ -67,7 +67,7 @@ type UpdatableSegment interface {
 	SetUpdatedFields(fieldInfo map[string]*index.UpdateFieldInfo)
 }
 
-type CustomizableSegment interface {
+type SegmentWithCallbacks interface {
 	Segment
 	CallbackId() string
 }
