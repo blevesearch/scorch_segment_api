@@ -22,7 +22,6 @@ import (
 
 	"github.com/RoaringBitmap/roaring/v2"
 	index "github.com/blevesearch/bleve_index_api"
-	"github.com/blevesearch/go-faiss"
 )
 
 type VecPostingsList interface {
@@ -79,7 +78,7 @@ type VectorIndex interface {
 
 type TrainedSegment interface {
 	Segment
-	GetCoarseQuantizer(field string) (*faiss.IndexImpl, error)
+	GetCoarseQuantizer(field string) (interface{}, error)
 }
 
 type VectorSegment interface {
