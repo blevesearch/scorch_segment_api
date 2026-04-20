@@ -187,6 +187,10 @@ type FieldStatsReporter interface {
 	UpdateFieldStats(FieldStats)
 }
 
+type GPUFieldStatsReporter interface {
+	UpdateGPUFieldStats(FieldStats)
+}
+
 type FieldStats interface {
 	Store(statName, fieldName string, value uint64)
 	Aggregate(stats FieldStats)
