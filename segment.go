@@ -187,8 +187,8 @@ type FieldStatsReporter interface {
 	UpdateFieldStats(FieldStats)
 }
 
-type GPUFieldStatsReporter interface {
-	UpdateGPUFieldStats(FieldStats)
+type VectorFieldStatsReporter interface {
+	UpdateVectorFieldStats(FieldStats)
 }
 
 type FieldStats interface {
