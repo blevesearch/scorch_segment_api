@@ -273,3 +273,27 @@ type NestedSegment interface {
 	// a parent document is deleted, all its nested child documents are also considered deleted.
 	AddNestedDocuments(deleted *roaring.Bitmap) *roaring.Bitmap
 }
+
+type GeoCellSegment interface {
+	Segment
+
+	GeoCellData(field string, except *roaring.Bitmap) (GeoCellData, error)
+}
+
+type GeoCellData interface {
+	InnerCells() []uint64
+	InnerDocIDs() []uint64
+
+	CrossCells() []uint64
+	CrossDocIDs() []uint64
+
+	NumDocs() uint64
+	DocNums() []uint64
+	DocScores() []uint64
+
+	BoundingBox(docID uint64) ([]byte, error)
+	Shape(docID uint64) ([]byte, error)
+
+	Exclude() *roaring.Bitmap
+	Close()
+}
