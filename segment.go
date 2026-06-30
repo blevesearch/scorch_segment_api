@@ -274,26 +274,38 @@ type NestedSegment interface {
 	AddNestedDocuments(deleted *roaring.Bitmap) *roaring.Bitmap
 }
 
-type GeoCellSegment interface {
+// GeoShapeV2Segment is an interface that extends the Segment interface
+// to provide access to GeoShapeV2Data within the segment.
+type GeoShapeV2Segment interface {
 	Segment
 
-	GeoCellData(field string, except *roaring.Bitmap) (GeoCellData, error)
+	GeoShapeV2Data(field string, except *roaring.Bitmap) (GeoShapeV2Data, error)
 }
 
-type GeoCellData interface {
+// GeoShapeV2Data provides methods to access separate parts of the GeoShapeV2 data
+// Internally, docID's are sequential from 0 to NumDocs()-1. A mapping of segment docID
+// to the geo docID is stored and can be retrieved using the DocNums() method.
+type GeoShapeV2Data interface {
+	// Returns all of the shapes' inner cells in sorted order
 	InnerCells() []uint64
+	// Returns the docIDs corresponding to the inner cells
 	InnerDocIDs() []uint64
-
+	// Returns all of the shapes' cross cells in sorted order
 	CrossCells() []uint64
+	// Returns the docIDs corresponding to the cross cells
 	CrossDocIDs() []uint64
-
+	// Returns the number of documents indexed
 	NumDocs() uint64
+	// Returns the segment's document numbers
 	DocNums() []uint64
+	// Returns the scores for the documents indexed
 	DocScores() []uint64
-
+	// Returns the bounding box bytes for the corresponding internal document ID
 	BoundingBox(docID uint64) ([]byte, error)
+	// Returns the shape bytes for the corresponding internal document ID
 	Shape(docID uint64) ([]byte, error)
-
+	// Returns the bitmap of documents that are excluded from the index
 	Exclude() *roaring.Bitmap
+	// Closes the GeoShapeV2Data and releases any associated resources
 	Close()
 }
