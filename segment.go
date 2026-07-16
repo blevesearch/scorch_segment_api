@@ -306,6 +306,12 @@ type GeoShapeV2Data interface {
 	Shape(docID uint64) ([]byte, error)
 	// Returns the bitmap of documents that are excluded from the index
 	Exclude() *roaring.Bitmap
+	// Returns a zeroed score array of length NumDocs()
+	// from a segment-level pool
+	GetScoreArray() []uint64
+	// Returns the score array obtained via GetScoreArray back to the
+	// segment-level pool, the caller must not use them afterwards
+	PutScoreArray(scores []uint64)
 	// Closes the GeoShapeV2Data and releases any associated resources
 	Close()
 }
