@@ -274,44 +274,48 @@ type NestedSegment interface {
 	AddNestedDocuments(deleted *roaring.Bitmap) *roaring.Bitmap
 }
 
-// GeoShapeV2Segment is an interface that extends the Segment interface
+// GeoShapeV2Segment is an optional interface that a Segment may implement
 // to provide access to GeoShapeV2Data within the segment.
 type GeoShapeV2Segment interface {
 	Segment
 
+	// GeoShapeV2Data returns the geo shape data for the given field,
+	// excluding any documents present in the except bitmap.
 	GeoShapeV2Data(field string, except *roaring.Bitmap) (GeoShapeV2Data, error)
 }
 
-// GeoShapeV2Data provides methods to access separate parts of the GeoShapeV2 data
-// Internally, docID's are sequential from 0 to NumDocs()-1. A mapping of segment docID
-// to the geo docID is stored and can be retrieved using the DocNums() method.
+// GeoShapeV2Data provides methods to access separate parts of the GeoShapeV2 data.
+// Internally, geo docIDs are sequential from 0 to NumDocs()-1; DocNums() maps each
+// geo docID (the slice index) to its segment document number.
 type GeoShapeV2Data interface {
-	// Returns all of the shapes' inner cells in sorted order
+	// InnerCells returns all of the shapes' inner cells in ascending order.
 	InnerCells() []uint64
-	// Returns the docIDs corresponding to the inner cells
+	// InnerDocIDs returns the geo docIDs parallel to InnerCells().
 	InnerDocIDs() []uint64
-	// Returns all of the shapes' cross cells in sorted order
+	// CrossCells returns all of the shapes' cross cells in ascending order.
 	CrossCells() []uint64
-	// Returns the docIDs corresponding to the cross cells
+	// CrossDocIDs returns the geo docIDs parallel to CrossCells().
 	CrossDocIDs() []uint64
-	// Returns the number of documents indexed
+	// NumDocs returns the number of documents indexed.
 	NumDocs() uint64
-	// Returns the segment's document numbers
+	// DocNums returns the mapping from geo docID (the slice index) to
+	// segment document number.
 	DocNums() []uint64
-	// Returns the scores for the documents indexed
+	// DocScores returns the precomputed scores for the documents indexed,
+	// indexed by geo docID.
 	DocScores() []uint64
-	// Returns the bounding box bytes for the corresponding internal document ID
-	BoundingBox(docID uint64) ([]byte, error)
-	// Returns the shape bytes for the corresponding internal document ID
-	Shape(docID uint64) ([]byte, error)
-	// Returns the bitmap of documents that are excluded from the index
-	Exclude() *roaring.Bitmap
-	// Returns a zeroed score array of length NumDocs()
-	// from a segment-level pool
+	// BoundingBox returns the bounding box bytes for the given geo docID.
+	BoundingBox(geoDocID uint64) ([]byte, error)
+	// Shape returns the shape bytes for the given geo docID.
+	Shape(geoDocID uint64) ([]byte, error)
+	// Excluded returns the bitmap of documents that are excluded from the index.
+	Excluded() *roaring.Bitmap
+	// GetScoreArray returns a zeroed score array of length NumDocs()
+	// from a segment-level pool.
 	GetScoreArray() []uint64
-	// Returns the score array obtained via GetScoreArray back to the
-	// segment-level pool, the caller must not use them afterwards
+	// PutScoreArray returns the score array obtained via GetScoreArray back
+	// to the segment-level pool. The caller must not use it afterwards.
 	PutScoreArray(scores []uint64)
-	// Closes the GeoShapeV2Data and releases any associated resources
+	// Close closes the GeoShapeV2Data and releases any associated resources.
 	Close()
 }
