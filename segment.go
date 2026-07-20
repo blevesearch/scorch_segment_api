@@ -301,9 +301,10 @@ type GeoShapeV2Data interface {
 	// DocNums returns the mapping from geo docID (the slice index) to
 	// segment document number.
 	DocNums() []uint64
-	// DocScores returns the precomputed scores for the documents indexed,
-	// indexed by geo docID.
-	DocScores() []uint64
+	// DocScores returns the precomputed inner and cross cell scores (in
+	// that order) for the documents indexed, each indexed by geo docID.
+	// These mirror index.GeoShapeV2Field.Scores() for every doc in the segment.
+	DocScores() (innerScores, crossScores []uint64)
 	// BoundingBox returns the bounding box bytes for the given geo docID.
 	BoundingBox(geoDocID uint64) ([]byte, error)
 	// Shape returns the shape bytes for the given geo docID.
