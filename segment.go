@@ -273,3 +273,50 @@ type NestedSegment interface {
 	// a parent document is deleted, all its nested child documents are also considered deleted.
 	AddNestedDocuments(deleted *roaring.Bitmap) *roaring.Bitmap
 }
+
+// GeoShapeV2Segment is an optional interface that a Segment may implement
+// to provide access to GeoShapeV2Data within the segment.
+type GeoShapeV2Segment interface {
+	Segment
+
+	// GeoShapeV2Data returns the geo shape data for the given field,
+	// excluding any documents present in the except bitmap.
+	GeoShapeV2Data(field string, except *roaring.Bitmap) (GeoShapeV2Data, error)
+}
+
+// GeoShapeV2Data provides methods to access separate parts of the GeoShapeV2 data.
+// Internally, geo docIDs are sequential from 0 to NumDocs()-1; DocNums() maps each
+// geo docID (the slice index) to its segment document number.
+type GeoShapeV2Data interface {
+	// InnerCells returns all of the shapes' inner cells in ascending order.
+	InnerCells() []uint64
+	// InnerDocIDs returns the geo docIDs parallel to InnerCells().
+	InnerDocIDs() []uint32
+	// CrossCells returns all of the shapes' cross cells in ascending order.
+	CrossCells() []uint64
+	// CrossDocIDs returns the geo docIDs parallel to CrossCells().
+	CrossDocIDs() []uint32
+	// NumDocs returns the number of documents indexed.
+	NumDocs() uint64
+	// DocNums returns the mapping from geo docID (the slice index) to
+	// segment document number.
+	DocNums() []uint32
+	// DocScores returns the precomputed inner and cross cell scores (in
+	// that order) for the documents indexed, each indexed by geo docID.
+	DocScores() (innerScores, crossScores []uint64)
+	// BoundingBox returns the bounding box bytes for the given geo docID.
+	BoundingBox(geoDocID uint64) ([]byte, error)
+	// Shape returns the shape bytes for the given geo docID.
+	Shape(geoDocID uint64) ([]byte, error)
+	// Excluded returns the bitmap of geo document IDs that are excluded
+	// from the index.
+	Excluded() *roaring.Bitmap
+	// GetScoreArray returns a zeroed score array of length NumDocs()
+	// from a segment-level pool.
+	GetScoreArray() []uint64
+	// PutScoreArray returns the score array obtained via GetScoreArray back
+	// to the segment-level pool.
+	PutScoreArray(scores []uint64)
+	// Close closes the GeoShapeV2Data and releases any associated resources.
+	Close()
+}
