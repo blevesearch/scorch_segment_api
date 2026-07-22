@@ -303,19 +303,19 @@ type GeoShapeV2Data interface {
 	DocNums() []uint64
 	// DocScores returns the precomputed inner and cross cell scores (in
 	// that order) for the documents indexed, each indexed by geo docID.
-	// These mirror index.GeoShapeV2Field.Scores() for every doc in the segment.
 	DocScores() (innerScores, crossScores []uint64)
 	// BoundingBox returns the bounding box bytes for the given geo docID.
 	BoundingBox(geoDocID uint64) ([]byte, error)
 	// Shape returns the shape bytes for the given geo docID.
 	Shape(geoDocID uint64) ([]byte, error)
-	// Excluded returns the bitmap of documents that are excluded from the index.
+	// Excluded returns the bitmap of geo document IDs that are excluded
+	// from the index.
 	Excluded() *roaring.Bitmap
 	// GetScoreArray returns a zeroed score array of length NumDocs()
 	// from a segment-level pool.
 	GetScoreArray() []uint64
 	// PutScoreArray returns the score array obtained via GetScoreArray back
-	// to the segment-level pool. The caller must not use it afterwards.
+	// to the segment-level pool.
 	PutScoreArray(scores []uint64)
 	// Close closes the GeoShapeV2Data and releases any associated resources.
 	Close()
