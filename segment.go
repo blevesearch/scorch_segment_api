@@ -291,16 +291,16 @@ type GeoShapeV2Data interface {
 	// InnerCells returns all of the shapes' inner cells in ascending order.
 	InnerCells() []uint64
 	// InnerDocIDs returns the geo docIDs parallel to InnerCells().
-	InnerDocIDs() []uint64
+	InnerDocIDs() []uint32
 	// CrossCells returns all of the shapes' cross cells in ascending order.
 	CrossCells() []uint64
 	// CrossDocIDs returns the geo docIDs parallel to CrossCells().
-	CrossDocIDs() []uint64
+	CrossDocIDs() []uint32
 	// NumDocs returns the number of documents indexed.
 	NumDocs() uint64
 	// DocNums returns the mapping from geo docID (the slice index) to
 	// segment document number.
-	DocNums() []uint64
+	DocNums() []uint32
 	// DocScores returns the precomputed inner and cross cell scores (in
 	// that order) for the documents indexed, each indexed by geo docID.
 	DocScores() (innerScores, crossScores []uint64)
