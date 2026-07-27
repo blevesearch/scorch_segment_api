@@ -311,12 +311,12 @@ type GeoShapeV2Data interface {
 	// Excluded returns the bitmap of geo document IDs that are excluded
 	// from the index.
 	Excluded() *roaring.Bitmap
-	// GetScoreArray returns a zeroed score array of length NumDocs()
-	// from a segment-level pool.
-	GetScoreArray() []uint64
-	// PutScoreArray returns the score array obtained via GetScoreArray back
-	// to the segment-level pool.
-	PutScoreArray(scores []uint64)
+	// GetScoreArray returns an empty score map, keyed by geo docID, from a
+	// segment-level pool.
+	GetScoreArray() map[uint32]uint64
+	// PutScoreArray clears the score map obtained via GetScoreArray and
+	// returns it to the segment-level pool.
+	PutScoreArray(scores map[uint32]uint64)
 	// Close closes the GeoShapeV2Data and releases any associated resources.
 	Close()
 }
