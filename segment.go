@@ -305,9 +305,9 @@ type GeoShapeV2Data interface {
 	// that order) for the documents indexed, each indexed by geo docID.
 	DocScores() (innerScores, crossScores []uint64)
 	// BoundingBox returns the bounding box bytes for the given geo docID.
-	BoundingBox(geoDocID uint64) ([]byte, error)
+	BoundingBox(geoDocID uint32) ([]byte, error)
 	// Shape returns the shape bytes for the given geo docID.
-	Shape(geoDocID uint64) ([]byte, error)
+	Shape(geoDocID uint32) ([]byte, error)
 	// Excluded returns the bitmap of geo document IDs that are excluded
 	// from the index.
 	Excluded() *roaring.Bitmap
