@@ -19,6 +19,8 @@ import (
 	"unsafe"
 )
 
+const StatsKey = "zap_stats"
+
 type Stats struct {
 	TotNewRootDocsProcessed uint64
 	TotNewDocsProcessed     uint64
