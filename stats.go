@@ -68,7 +68,7 @@ type Stats struct {
 }
 
 func (s *Stats) StatsMap() map[string]interface{} {
-	svet := reflect.TypeOf(*s)
+	svet := reflect.TypeOf(s).Elem()
 	n := svet.NumField()
 	m := make(map[string]interface{}, n)
 	base := unsafe.Pointer(s)
