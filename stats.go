@@ -28,9 +28,9 @@ type Stats struct {
 	TotNewDocsDropped       uint64
 	TotNewVectorsProcessed  uint64
 
-	TotPersistBeg    uint64
-	TotPersistEnd    uint64
-	TotPersistErrors uint64
+	TotPersistBeg uint64
+	TotPersistEnd uint64
+	TotPersistErr uint64
 
 	TotMergesBeg          uint64
 	TotMergesEnd          uint64
@@ -41,6 +41,7 @@ type Stats struct {
 
 	TotVecSectionMergesBegin            uint64
 	TotVecSectionMergesEnd              uint64
+	TotVecSectionMergeErr               uint64
 	TotVecSectionMergeTime              uint64
 	TotVecSectionVecsReconstructed      uint64
 	TotVecSectionIVFIndexesCreated      uint64
