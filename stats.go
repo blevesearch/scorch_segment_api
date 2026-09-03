@@ -47,8 +47,6 @@ type Stats struct {
 	TotVecSectionIVFIndexesCreated      uint64
 	TotVecSectionFlatIndexesCreated     uint64
 	TotVecSectionTrainingTime           uint64
-	TotVecSectionFastMerges             uint64
-	TotVecSectionFastMergeErrs          uint64
 	TotVecSectionNaiveMerges            uint64
 	TotVecSectionMetadataBytesWritten   uint64
 	TotVecSectionFloatIndexBytesWritten uint64
@@ -58,8 +56,14 @@ type Stats struct {
 	TotVecSectionIndexWriteTime         uint64
 	TotVecSectionVecsProcessedTime      uint64
 
+	TotVecSectionFastMerges                     uint64
+	TotVecSectionFastMergeErrs                  uint64
+	TotVecSectionFastMergeFallbacks             uint64
+	TotVecSectionFastMergeTime                  uint64
 	TotVecSectionTrainingPhaseVecsProcessedTime uint64
 	TotVecSectionTrainingPhaseTrainingTime      uint64
+	TotVecSectionFastMergeFallbackExecTime      uint64
+	TotVecSectionFaissMergeExecTime             uint64
 
 	TotOpenBeg    uint64
 	TotOpenEnd    uint64
