@@ -320,3 +320,37 @@ type GeoShapeV2Data interface {
 	// Close closes the GeoShapeV2Data and releases any associated resources.
 	Close()
 }
+
+// NumericV2Segment is an optional interface that a Segment may implement
+// to provide access to number_v2 data within the segment.
+type NumericV2Segment interface {
+	Segment
+
+	// NumericV2Data returns the numeric data for the given field, or nil when
+	// the field carries no number_v2 section in this segment.
+	NumericV2Data(field string) (NumericV2Data, error)
+}
+
+// NumericV2Data is one field's sorted value array together with the segment
+// document number that each value belongs to. Unlike GeoShapeV2Data there is no
+// intermediate document ID space and no exclusion bitmap: there is no
+// per-document side data needing a dense index, so the document numbers are
+// stored directly and a snapshot's deleted bitmap applies to them as-is.
+//
+// Both slices are read-only views over the segment's memory and remain valid
+// only until Close is called.
+type NumericV2Data interface {
+	// Values returns the field's indexed values, each encoded as a uint64
+	// whose unsigned ordering matches the float64 ordering of the original
+	// value, in ascending order. Parallel to DocNums().
+	Values() []uint64
+
+	// DocNums returns the segment document number that each value in Values()
+	// belongs to, at the same index. A document with a multi-valued field owns
+	// one entry per value, so document numbers may repeat.
+	DocNums() []uint32
+
+	// Close releases this load's reference on the segment's cached data,
+	// allowing the segment to evict it.
+	Close()
+}
