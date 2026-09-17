@@ -195,13 +195,16 @@ type BlockMaxPostingsIterator interface {
 	NormFromID(normID uint8) float64
 
 	// CurrentBlock force-decodes the block the iterator currently sits on
-	// and returns its doc numbers and term frequencies as parallel slices,
-	// owned by the iterator. The returned slices are only valid until the
-	// next call that moves the block cursor (SeekBlock, Next, or Advance).
+	// and returns its doc numbers, term frequencies, and norms (in
+	// NormFromID's units) as parallel slices, owned by the iterator. Norms
+	// are included so a caller can score every candidate in the block
+	// without a separate seek per document -- the whole point of decoding a
+	// block in one shot. The returned slices are only valid until the next
+	// call that moves the block cursor (SeekBlock, Next, or Advance).
 	//
 	// ok is false when there is no current block to decode (e.g. the
 	// iterator is exhausted).
-	CurrentBlock() (docs []uint64, freqs []uint64, ok bool)
+	CurrentBlock() (docs []uint64, freqs []uint64, norms []float64, ok bool)
 }
 
 type Posting interface {
