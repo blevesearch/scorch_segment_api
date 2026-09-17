@@ -142,6 +142,68 @@ type OptimizablePostingsIterator interface {
 	ReplaceActual(*roaring.Bitmap)
 }
 
+// BlockMaxPostingsIterator is an optional capability that a PostingsIterator
+// may implement when its underlying on-disk format stores postings in
+// fixed-size blocks together with a per-block score upper-bound (a
+// "block-max" pair), enabling Block-Max WAND style query-time pruning.
+//
+// Callers MUST type-assert for this interface (the same pattern as
+// OptimizablePostingsIterator) and fall back to plain Next/Advance when it
+// is not implemented -- e.g. an older on-disk format, a field that was not
+// indexed with frequencies, or an in-memory (pre-flush) segment.
+type BlockMaxPostingsIterator interface {
+	// SeekBlock advances only the skip list -- not the decoded posting
+	// payload -- to the first remaining block whose last doc number is
+	// >= docNum. It does not decode any doc numbers or frequencies, so it
+	// is cheap even when the target block turns out not to be useful.
+	//
+	// It returns the last doc number contained in that block and true, or
+	// (0, false) if no such block exists (the postings list is exhausted
+	// from this point on).
+	//
+	// Consecutive calls to SeekBlock (and Next/Advance) must be made with
+	// non-decreasing docNum values.
+	SeekBlock(docNum uint64) (lastDocInBlock uint64, ok bool)
+
+	// BlockMaxTF returns the maximum term frequency of any document in the
+	// block the iterator currently sits on (as left by the most recent
+	// SeekBlock, Next, or Advance call). ok is false when no bound is
+	// available for the current position -- e.g. the field has no stored
+	// frequencies, or the iterator is exhausted.
+	//
+	// A returned value of math.MaxUint64 is a sentinel meaning "the true
+	// maximum could not be represented and must be treated as unbounded" --
+	// callers should fall back to a term-level (not block-level) score
+	// bound rather than using this value directly in a per-block formula.
+	BlockMaxTF() (maxTF uint64, ok bool)
+
+	// BlockMinNormID returns the smallest (i.e. shortest-field / highest
+	// scoring potential) quantized norm id seen among the documents of the
+	// block the iterator currently sits on. ok is false under the same
+	// conditions as BlockMaxTF.
+	//
+	// BlockMaxTF and BlockMinNormID are not guaranteed to originate from
+	// the same document within the block -- the pair is a valid but not
+	// necessarily tight upper bound on any single document's score
+	// contribution, which is all that block-max pruning requires.
+	BlockMinNormID() (minNormID uint8, ok bool)
+
+	// NormFromID converts a quantized norm id (as returned by
+	// BlockMinNormID) into the same float64 norm value that Posting.Norm()
+	// reports for a document quantized to that id, so callers can feed it
+	// directly into their existing per-document scoring function.
+	NormFromID(normID uint8) float64
+
+	// CurrentBlock force-decodes the block the iterator currently sits on
+	// and returns its doc numbers and term frequencies as parallel slices,
+	// owned by the iterator. The returned slices are only valid until the
+	// next call that moves the block cursor (SeekBlock, Next, or Advance).
+	//
+	// ok is false when there is no current block to decode (e.g. the
+	// iterator is exhausted).
+	CurrentBlock() (docs []uint64, freqs []uint64, ok bool)
+}
+
 type Posting interface {
 	Number() uint64
 
