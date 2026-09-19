@@ -145,66 +145,72 @@ type OptimizablePostingsIterator interface {
 // BlockMaxPostingsIterator is an optional capability that a PostingsIterator
 // may implement when its underlying on-disk format stores postings in
 // fixed-size blocks together with a per-block score upper-bound (a
-// "block-max" pair), enabling Block-Max WAND style query-time pruning.
+// "block-max" pair), enabling Block-Max WAND style query-time pruning and
+// bulk (block-at-a-time) collection.
 //
 // Callers MUST type-assert for this interface (the same pattern as
 // OptimizablePostingsIterator) and fall back to plain Next/Advance when it
 // is not implemented -- e.g. an older on-disk format, a field that was not
 // indexed with frequencies, or an in-memory (pre-flush) segment.
+//
+// BlockMax and ShallowAdvance are deliberately two separate methods rather
+// than one that both peeks a bound and moves the cursor: an implementation
+// that has to invalidate its own "already positioned" fast-iteration state
+// on every peek -- because peeking and moving were the same call -- turns
+// every ordinary scan into a full re-seek per block, even for blocks that
+// were never actually skipped. Keeping them separate lets an implementation
+// answer BlockMax for free from whatever position it already holds.
 type BlockMaxPostingsIterator interface {
-	// SeekBlock advances only the skip list -- not the decoded posting
-	// payload -- to the first remaining block whose last doc number is
-	// >= docNum. It does not decode any doc numbers or frequencies, so it
-	// is cheap even when the target block turns out not to be useful.
+	// BlockMax reports a bound -- the highest term frequency and the most
+	// favorable (lowest, i.e. shortest-field) norm factor -- for every
+	// document up to and including lastDoc, without decoding any block
+	// payload, plus how many documents that span covers so a caller that
+	// skips it via ShallowAdvance can still count them exactly, without
+	// knowing anything about this format's block size.
 	//
-	// It returns the last doc number contained in that block and true, or
-	// (0, false) if no such block exists (the postings list is exhausted
-	// from this point on).
+	// The two values in the bound need not come from the same document --
+	// it is a valid but not necessarily tight upper bound on any single
+	// document's score contribution, which is all block-max pruning
+	// requires.
 	//
-	// Consecutive calls to SeekBlock (and Next/Advance) must be made with
-	// non-decreasing docNum values.
-	SeekBlock(docNum uint64) (lastDocInBlock uint64, ok bool)
+	// ok is false whenever there is no useful bound to report: the
+	// iterator is exhausted, the term records no frequencies, or this is
+	// an iterator with no block structure underneath it at all (e.g. a
+	// single-posting inlined iterator, or one driven by a materialized
+	// bitmap rather than the on-disk postings). A caller must treat
+	// ok=false as "just fetch normally" -- it is not an error.
+	//
+	// Consecutive calls (interleaved with ShallowAdvance, Next, or
+	// Advance) must be made with non-decreasing docNum-equivalent
+	// positions -- this only ever describes what lies at or after
+	// wherever the iterator already sits.
+	BlockMax() (maxTF uint64, maxNormFactor float64, lastDoc uint64, docCount int, ok bool)
 
-	// BlockMaxTF returns the maximum term frequency of any document in the
-	// block the iterator currently sits on (as left by the most recent
-	// SeekBlock, Next, or Advance call). ok is false when no bound is
-	// available for the current position -- e.g. the field has no stored
-	// frequencies, or the iterator is exhausted.
+	// ShallowAdvance moves the iterator to the block that could contain
+	// target, touching only a skip structure -- no block payload is
+	// decoded. Call BlockMax again afterward for the new position's bound
+	// before deciding whether to fetch it for real.
 	//
-	// A returned value of math.MaxUint64 is a sentinel meaning "the true
-	// maximum could not be represented and must be treated as unbounded" --
-	// callers should fall back to a term-level (not block-level) score
-	// bound rather than using this value directly in a per-block formula.
-	BlockMaxTF() (maxTF uint64, ok bool)
+	// Like Advance, target must be strictly greater than any document
+	// number this iterator has already produced or shallow-advanced past;
+	// this only ever moves forward. Safe to call even when BlockMax
+	// reported ok=false for the current position.
+	ShallowAdvance(target uint64) error
 
-	// BlockMinNormID returns the smallest (i.e. shortest-field / highest
-	// scoring potential) quantized norm id seen among the documents of the
-	// block the iterator currently sits on. ok is false under the same
-	// conditions as BlockMaxTF.
+	// NextBlock fills docNums/freqs/norms (all three must have equal
+	// length) with up to that many postings and returns how many were
+	// written; a return of 0 means the postings list is exhausted.
+	// globalOffset is added to every doc number written, so a caller
+	// spanning several segments can hand back one continuous doc-ID
+	// stream without a separate translation pass.
 	//
-	// BlockMaxTF and BlockMinNormID are not guaranteed to originate from
-	// the same document within the block -- the pair is a valid but not
-	// necessarily tight upper bound on any single document's score
-	// contribution, which is all that block-max pruning requires.
-	BlockMinNormID() (minNormID uint8, ok bool)
-
-	// NormFromID converts a quantized norm id (as returned by
-	// BlockMinNormID) into the same float64 norm value that Posting.Norm()
-	// reports for a document quantized to that id, so callers can feed it
-	// directly into their existing per-document scoring function.
-	NormFromID(normID uint8) float64
-
-	// CurrentBlock force-decodes the block the iterator currently sits on
-	// and returns its doc numbers, term frequencies, and norms (in
-	// NormFromID's units) as parallel slices, owned by the iterator. Norms
-	// are included so a caller can score every candidate in the block
-	// without a separate seek per document -- the whole point of decoding a
-	// block in one shot. The returned slices are only valid until the next
-	// call that moves the block cursor (SeekBlock, Next, or Advance).
-	//
-	// ok is false when there is no current block to decode (e.g. the
-	// iterator is exhausted).
-	CurrentBlock() (docs []uint64, freqs []uint64, norms []float64, ok bool)
+	// This is the bulk counterpart to Next/Advance: handing back flat
+	// arrays lets a caller score a whole block without materialising a
+	// per-document object, amortising the call across the block instead
+	// of paying it once per document. Locations/term-vectors are never
+	// decoded here -- a caller needing them must use Next/Advance
+	// instead.
+	NextBlock(docNums []uint64, freqs []uint64, norms []float64, globalOffset uint64) (int, error)
 }
 
 type Posting interface {
