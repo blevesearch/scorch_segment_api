@@ -142,6 +142,77 @@ type OptimizablePostingsIterator interface {
 	ReplaceActual(*roaring.Bitmap)
 }
 
+// BlockMaxPostingsIterator is an optional capability that a PostingsIterator
+// may implement when its underlying on-disk format stores postings in
+// fixed-size blocks together with a per-block score upper-bound (a
+// "block-max" pair), enabling Block-Max WAND style query-time pruning and
+// bulk (block-at-a-time) collection.
+//
+// Callers MUST type-assert for this interface (the same pattern as
+// OptimizablePostingsIterator) and fall back to plain Next/Advance when it
+// is not implemented -- e.g. an older on-disk format, a field that was not
+// indexed with frequencies, or an in-memory (pre-flush) segment.
+//
+// BlockMax and ShallowAdvance are deliberately two separate methods rather
+// than one that both peeks a bound and moves the cursor: an implementation
+// that has to invalidate its own "already positioned" fast-iteration state
+// on every peek -- because peeking and moving were the same call -- turns
+// every ordinary scan into a full re-seek per block, even for blocks that
+// were never actually skipped. Keeping them separate lets an implementation
+// answer BlockMax for free from whatever position it already holds.
+type BlockMaxPostingsIterator interface {
+	// BlockMax reports a bound -- the highest term frequency and the most
+	// favorable (lowest, i.e. shortest-field) norm factor -- for every
+	// document up to and including lastDoc, without decoding any block
+	// payload, plus how many documents that span covers so a caller that
+	// skips it via ShallowAdvance can still count them exactly, without
+	// knowing anything about this format's block size.
+	//
+	// The two values in the bound need not come from the same document --
+	// it is a valid but not necessarily tight upper bound on any single
+	// document's score contribution, which is all block-max pruning
+	// requires.
+	//
+	// ok is false whenever there is no useful bound to report: the
+	// iterator is exhausted, the term records no frequencies, or this is
+	// an iterator with no block structure underneath it at all (e.g. a
+	// single-posting inlined iterator, or one driven by a materialized
+	// bitmap rather than the on-disk postings). A caller must treat
+	// ok=false as "just fetch normally" -- it is not an error.
+	//
+	// Consecutive calls (interleaved with ShallowAdvance, Next, or
+	// Advance) must be made with non-decreasing docNum-equivalent
+	// positions -- this only ever describes what lies at or after
+	// wherever the iterator already sits.
+	BlockMax() (maxTF uint64, maxNormFactor float64, lastDoc uint64, docCount int, ok bool)
+
+	// ShallowAdvance moves the iterator to the block that could contain
+	// target, touching only a skip structure -- no block payload is
+	// decoded. Call BlockMax again afterward for the new position's bound
+	// before deciding whether to fetch it for real.
+	//
+	// Like Advance, target must be strictly greater than any document
+	// number this iterator has already produced or shallow-advanced past;
+	// this only ever moves forward. Safe to call even when BlockMax
+	// reported ok=false for the current position.
+	ShallowAdvance(target uint64) error
+
+	// NextBlock fills docNums/freqs/norms (all three must have equal
+	// length) with up to that many postings and returns how many were
+	// written; a return of 0 means the postings list is exhausted.
+	// globalOffset is added to every doc number written, so a caller
+	// spanning several segments can hand back one continuous doc-ID
+	// stream without a separate translation pass.
+	//
+	// This is the bulk counterpart to Next/Advance: handing back flat
+	// arrays lets a caller score a whole block without materialising a
+	// per-document object, amortising the call across the block instead
+	// of paying it once per document. Locations/term-vectors are never
+	// decoded here -- a caller needing them must use Next/Advance
+	// instead.
+	NextBlock(docNums []uint64, freqs []uint64, norms []float64, globalOffset uint64) (int, error)
+}
+
 type Posting interface {
 	Number() uint64
 
