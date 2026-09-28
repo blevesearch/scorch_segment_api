@@ -332,13 +332,8 @@ type NumericV2Segment interface {
 }
 
 // NumericV2Data is one field's sorted value array together with the segment
-// document number that each value belongs to. Unlike GeoShapeV2Data there is no
-// intermediate document ID space and no exclusion bitmap: there is no
-// per-document side data needing a dense index, so the document numbers are
-// stored directly and a snapshot's deleted bitmap applies to them as-is.
-//
-// Both slices are read-only views over the segment's memory and remain valid
-// only until Close is called.
+// document number that each value belongs to. Both slices are read-only views
+// over the segment's memory and remain valid only until Close is called.
 type NumericV2Data interface {
 	// Values returns the field's indexed values, each encoded as a uint64
 	// whose unsigned ordering matches the float64 ordering of the original
@@ -346,11 +341,9 @@ type NumericV2Data interface {
 	Values() []uint64
 
 	// DocNums returns the segment document number that each value in Values()
-	// belongs to, at the same index. A document with a multi-valued field owns
-	// one entry per value, so document numbers may repeat.
+	// belongs to, at the same index.
 	DocNums() []uint32
 
-	// Close releases this load's reference on the segment's cached data,
-	// allowing the segment to evict it.
+	// Close closes the NumericV2Data and releases any associated resources.
 	Close()
 }
