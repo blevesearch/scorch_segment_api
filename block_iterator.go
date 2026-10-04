@@ -14,8 +14,11 @@
 
 package segment
 
-// PostingsBlockLen is the maximum number of postings a PostingsBlock holds.
-const PostingsBlockLen = 128
+import "github.com/blevesearch/freeway/bitpack"
+
+// PostingsBlockLen is the maximum number of postings a PostingsBlock holds: the
+// length of a block of the bit-packed postings, which is that of freeway's codec.
+const PostingsBlockLen = bitpack.BlockLen
 
 // PostingsBlock is a batch of postings handed out by a BlockPostingsIterator. Only the
 // scalars a scorer needs are carried: doc number, term frequency and field
