@@ -17,11 +17,11 @@ package segment
 // PostingsBlockLen is the maximum number of postings a PostingsBlock holds.
 const PostingsBlockLen = 128
 
-// PostingsBlock is a batch of postings handed out by a BlockCursor. Only the
+// PostingsBlock is a batch of postings handed out by a BlockPostingsIterator. Only the
 // scalars a scorer needs are carried: doc number, term frequency and field
 // norm. There are no locations.
 //
-// Only the first n entries (n being what the BlockCursor call returned) are
+// Only the first n entries (n being what the BlockPostingsIterator call returned) are
 // meaningful; the remainder is unspecified. Docs are strictly ascending and
 // are local to the segment. The array is meant to be allocated once by the
 // caller and refilled by every call.
@@ -29,38 +29,38 @@ type PostingsBlock struct {
 	Docs  [PostingsBlockLen]uint32
 	Freqs [PostingsBlockLen]uint32
 	// Norms holds the field norm factor (1/sqrt(fieldLength)) of every doc.
-	// It is filled only when the cursor was opened with norms.
+	// It is filled only when the iterator was opened with norms.
 	Norms [PostingsBlockLen]float32
 }
 
-// BlockCursorProvider is an optional capability a PostingsList may satisfy to
+// BlockPostingsList is an optional capability a PostingsList may satisfy to
 // let a caller consume its postings a block at a time, rather than one
 // posting at a time through a PostingsIterator.
 //
-// Deletions are taken care of by the cursor: deleted docs never appear in a
+// Deletions are taken care of by the iterator: deleted docs never appear in a
 // block.
-type BlockCursorProvider interface {
-	// BlockPostingsIterator returns a cursor positioned before the first posting.
+type BlockPostingsList interface {
+	// BlockIterator returns an iterator positioned before the first posting.
 	// withFreqs / withNorms select which of Freqs / Norms get filled; an
-	// unselected array is left unspecified. prealloc may be a cursor
+	// unselected array is left unspecified. prealloc may be a iterator
 	// previously returned by this method, to be reset and reused (nil is
 	// fine).
-	BlockPostingsIterator(withFreqs, withNorms bool, prealloc BlockCursor) (BlockCursor, error)
+	BlockIterator(withFreqs, withNorms bool, prealloc BlockPostingsIterator) (BlockPostingsIterator, error)
 }
 
-// BlockCursor iterates over a postings list a block at a time, so that
+// BlockPostingsIterator iterates over a postings list a block at a time, so that
 // whatever sits on top of it pays for an interface call once per batch of
 // postings, not once per posting.
-type BlockCursor interface {
+type BlockPostingsIterator interface {
 	// NextBlock fills b with the next batch of live postings and returns how
-	// many it holds. A return of 0 with a nil error means the cursor is
+	// many it holds. A return of 0 with a nil error means the iterator is
 	// exhausted, and it stays exhausted.
 	NextBlock(b *PostingsBlock) (n int, err error)
 
 	// SeekBlock fills b with the first batch of live postings whose doc
 	// number is >= target, with the entries below target dropped, and
 	// returns how many it holds; the entries start at index 0. A return of 0
-	// means that nothing at or after target is left. The cursor never moves
+	// means that nothing at or after target is left. The iterator never moves
 	// backwards, so a target below the last returned doc number behaves like
 	// NextBlock.
 	SeekBlock(target uint64, b *PostingsBlock) (n int, err error)
@@ -72,11 +72,11 @@ type BlockCursor interface {
 	// LiveCount is the exact number of postings of the list that haven't
 	// been deleted. When nothing is deleted it's as cheap as Count; otherwise
 	// the list has to be walked, doc numbers only, so use it when the count is
-	// all that's needed. It's independent of the cursor's position, and
+	// all that's needed. It's independent of the iterator's position, and
 	// doesn't move it.
 	LiveCount() (uint64, error)
 
-	// BytesRead is the number of bytes read from disk so far by this cursor,
+	// BytesRead is the number of bytes read from disk so far by this iterator,
 	// cumulatively.
 	BytesRead() uint64
 }
@@ -103,13 +103,13 @@ type BlockBounds struct {
 	MaxNorm float32
 }
 
-// BlockMaxCursor is an optional capability of a BlockCursor: bounds on the
+// BlockMaxPostingsIterator is an optional capability of a BlockPostingsIterator: bounds on the
 // scores of the blocks of the list. It is what block-max pruning (WAND) is made
 // of.
-type BlockMaxCursor interface {
+type BlockMaxPostingsIterator interface {
 	// BoundsAt are the bounds of the first block whose last doc is >= target,
 	// and whether there is such a block. It only looks at the list's skip
-	// data: nothing is decoded and the cursor doesn't move, so it can be
+	// data: nothing is decoded and the iterator doesn't move, so it can be
 	// asked about any target, in any order, whenever a pruner wants a bound
 	// without committing to read from there.
 	BoundsAt(target uint32) (BlockBounds, bool)
