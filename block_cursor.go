@@ -40,12 +40,12 @@ type PostingsBlock struct {
 // Deletions are taken care of by the cursor: deleted docs never appear in a
 // block.
 type BlockCursorProvider interface {
-	// BlockCursor returns a cursor positioned before the first posting.
+	// BlockPostingsIterator returns a cursor positioned before the first posting.
 	// withFreqs / withNorms select which of Freqs / Norms get filled; an
 	// unselected array is left unspecified. prealloc may be a cursor
 	// previously returned by this method, to be reset and reused (nil is
 	// fine).
-	BlockCursor(withFreqs, withNorms bool, prealloc BlockCursor) (BlockCursor, error)
+	BlockPostingsIterator(withFreqs, withNorms bool, prealloc BlockCursor) (BlockCursor, error)
 }
 
 // BlockCursor iterates over a postings list a block at a time, so that
