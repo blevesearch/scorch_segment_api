@@ -142,6 +142,39 @@ type OptimizablePostingsIterator interface {
 	ReplaceActual(*roaring.Bitmap)
 }
 
+// MergeablePostingsList is an optional capability a PostingsList
+// implementation may satisfy to participate in segment merging without
+// exposing its full on-disk representation: an upper bound on doc frequency
+// and whether the term records locations, both knowable before any iterator
+// over it is constructed.
+type MergeablePostingsList interface {
+	// RawDocFreq returns the number of postings recorded on disk for this
+	// term, before any deletions are taken into account.
+	RawDocFreq() uint64
+
+	// HasLocs reports whether this term records locations.
+	HasLocs() bool
+}
+
+// MergeablePostingsIterator is an optional capability a PostingsIterator
+// implementation may satisfy to participate in segment merging: access to a
+// posting's raw, still-encoded location bytes, so a merge can move them to
+// another segment without decoding and re-encoding them.
+type MergeablePostingsIterator interface {
+	// NextWithLocBytes returns the next posting along with the raw encoded
+	// bytes of its location group (nil if it has none), or exists == false
+	// once the iterator is spent.
+	NextWithLocBytes() (docNum uint64, freq uint64, bytesLoc []byte, exists bool, err error)
+}
+
+// Releasable is an optional capability a PostingsList or PostingsIterator
+// implementation may satisfy to support pooled reuse: Release returns the
+// value to its implementation's internal pool. The caller must not use the
+// value again after calling Release.
+type Releasable interface {
+	Release()
+}
+
 type Posting interface {
 	Number() uint64
 

@@ -4,6 +4,8 @@ github.com/bits-and-blooms/bitset v1.24.2 h1:M7/NzVbsytmtfHbumG+K2bremQPMJuqv1JD
 github.com/bits-and-blooms/bitset v1.24.2/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
 github.com/blevesearch/bleve_index_api v1.4.1-0.20260729060817-8e56340f2a7e h1:WJ3JnFiBuZ0m1mXaniDHpbZxKU8hjp7SIhqHopSnaM4=
 github.com/blevesearch/bleve_index_api v1.4.1-0.20260729060817-8e56340f2a7e/go.mod h1:xvd48t5XMeeioWQ5/jZvgLrV98flT2rdvEJ3l/ki4Ko=
+github.com/blevesearch/freeway v0.0.0-20260910051309-0770e11c32cd h1:LOQjtgGUFbLlHbw/Ue+SE4nFSWUPMkyTZcCiRLWlF6E=
+github.com/blevesearch/freeway v0.0.0-20260910051309-0770e11c32cd/go.mod h1:KguWkuJ1aPhrMS4svPyA9rz2zrgkNybj546cXgxGrCI=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/mschoch/smat v0.2.0 h1:8imxQsjDm8yFEAVBe7azKmKSgzSkZXDuKkSq9374khM=
